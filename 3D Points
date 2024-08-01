@@ -1,0 +1,92 @@
+#include <iostream>
+#include <math.h>
+using namespace std;
+
+class point {
+    int x,y,z;
+    public:
+    point (int = 0, int = 0, int = 0);
+    point negative ();
+    double norm ();
+    friend ostream& operator << (ostream&, point&);
+    friend istream& operator >> (istream&, point&);
+    point operator= (point&);
+    point operator+ (point&);
+    point operator++ ();
+    point operator++ (int);
+};
+
+int main () {
+    point p1, p2, p3;
+    cout << "Enter coordinates of first point: ";
+    cin >> p1;
+    cout << "Enter coordinates of second point: ";
+    cin >> p2;
+    p1++;
+    cout << "\n++P1 = " << p1;
+    cout << "\nDistance of P2 from the origin = " << p2.norm ();
+    p3 = p1;
+    cout << "\nP3 is assigned to the value of P1: " << p3 << "\n";
+    point temp = p2.negative ();
+    cout << "\nNegative(p2): " << temp << "\n";
+    return 0;
+}
+
+point::point (int X, int Y, int Z) {
+    x = X;
+    y = Y;
+    z = Z;
+}
+
+point point::negative () {
+    if (x > 0)
+        x = -1 * x;
+    if (y > 0)
+        y = -1 * y;
+    if (z > 0)
+        z = -1 * z;
+    return *this;
+}
+
+double point::norm () {
+    return pow ((x*x+y*y+z*z), 0.5);
+}
+
+istream& operator>> (istream& input, point& point) {
+    input >> point.x >> point.y >> point.z;
+    return input;
+}
+
+ostream& operator<< (ostream& output, point& point) {
+    output << "(" << point.x << ", " << point.y << ", " << point.z << ")";
+    return output;
+}
+
+point point::operator= (point& point) {
+    x = point.x;
+    y = point.y;
+    z = point.z;
+    return *this;
+}
+
+point point::operator+ (point& p) {
+    x += p.x;
+    y += p.y;
+    z += p.z;
+    return *this;
+}
+
+point point::operator++ () {
+    ++x;
+    ++y;
+    ++z;
+    return *this;
+}
+
+point point::operator++ (int) {
+    point temp = *this;
+    ++x;
+    ++y;
+    ++z;
+    return temp;
+}
