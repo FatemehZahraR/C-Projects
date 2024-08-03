@@ -1,0 +1,237 @@
+#include <iostream>
+#include <vector>
+#include <string>
+#include <cctype>
+using namespace std;
+
+class polynomial;
+
+class monomial {
+    int coef, pow;
+    public:
+    monomial (int Coef = 0, int Pow = 0) : coef(Coef), pow(Pow) {}
+    friend class polynomial;
+    friend istream& operator>> (istream&, polynomial&);
+    friend ostream& operator<< (ostream&, polynomial&);
+    friend bool operator==(const monomial&, const monomial&);
+    friend bool operator!=(const monomial&, const monomial&);
+    friend bool operator==(const polynomial&, const polynomial&);
+};
+
+class polynomial {
+    vector <monomial> terms;
+    public:
+    friend void input (polynomial&);
+    friend ostream& operator <<(ostream&, polynomial&);
+    friend istream& operator>> (istream&, polynomial&);
+    polynomial operator+ (polynomial&);
+    polynomial operator- (polynomial&);
+    polynomial operator* (polynomial&);
+    polynomial sort ();
+    friend bool operator==(polynomial&, polynomial&);
+    polynomial operator+= (polynomial&);
+    polynomial operator-= (polynomial&);
+};
+
+bool isDigit (const string&);
+
+int main () {
+    polynomial p1, p2, p3;
+    cout << "p1\n";
+    cin >> p1;
+    cout << "p2\n";
+    cin >> p2;
+    cout << "p1 = " << p1 << "\n";
+    cout << "p2 = " << p2 << "\n"; 
+    p3 = p1+p2;
+    cout << "\np1 + p2 = " << p3 << "\n";
+    p3 = p1 - p2;
+    cout << "\np1 - p2 = " << p3 << "\n";
+    p3 = p1 * p2;
+    cout << "\np1 * p2 = " << p3 << "\n";
+    return 0;
+}
+
+bool isDigit (const string& str) {
+    int len = str.length ();
+    bool flag = true;
+    for (int i = 0; i < len; i++) {
+        if (str[i] < '0' || str[i] > '9') {
+            flag = false;
+            break;
+        }
+    }
+    return flag;
+}
+
+polynomial polynomial::sort () {
+    int size = terms.size ();
+    for (int i = 0; i < size; i++) {
+        for (int j = 0; j < size - i - 1; j++) {
+            if (terms[j].pow < terms[j + 1].pow) {
+                monomial temp = terms[j];
+                terms[j] = terms[j+1];
+                terms[j+1] = temp;
+            }
+        }
+    }
+    return *this;
+}
+
+istream& operator>> (istream& input, polynomial& poly) {
+    string flag;
+    int idx = 0;
+    while (true){
+        try {
+        monomial mono;
+        cout << "Enter term " << idx + 1 << " : ";
+        input >> mono.coef >> mono.pow;
+        poly.terms.push_back(mono);
+        cout << "Do you want to continue?(Yes/No): ";
+        input >> flag;
+        if (flag == "no" || flag == "No")
+            break;
+        if (flag == "yes" || flag == "Yes") {
+            ++idx;
+            continue;
+        } if (isDigit(flag)) {
+            string err("Input must be either 'no' or a 'yes'!\n");
+            throw err;
+        }
+        } catch (const string& exc) {
+            cerr << exc << "\n";
+        } catch (...) {
+            cerr << "Something is wrong with the input\n";
+        }
+    }
+    poly.sort ();
+    return input;
+}
+
+ostream& operator<< (ostream& output, polynomial& p) {
+    p.sort ();
+    int len = p.terms.size ();
+    for (int i = 0; i < len; i++) {
+        if (p.terms[i].coef > 0)
+            output << p.terms[i].coef << "x^" << p.terms[i].pow;
+        else if (p.terms[i].coef < 0)
+            output << "(" <<p.terms[i].coef << "x^" << p.terms[i].pow << ")";
+        else
+            output << 0;
+        if (i != len - 1)
+            output << " + ";
+    }
+    return output;
+}
+
+polynomial polynomial::operator+ (polynomial& other) {
+    polynomial result;
+    for (int i = 0; i < this->terms.size(); ++i)
+        result.terms.push_back(this-> terms[i]);
+    for (int i = 0; i < other.terms.size(); ++i) {
+        bool found = false;
+        for (int j = 0; j < result.terms.size(); ++j) {
+            if (result.terms[j].pow == other.terms[i].pow) {
+                result.terms[j].coef += other.terms[i].coef;
+                found = true;
+                break;
+            }
+        }
+        if (!found) {
+            result.terms.push_back(other.terms[i]);
+        }
+    }
+    return result;
+}
+
+polynomial polynomial::operator- (polynomial& other) {
+    polynomial result;
+    for (int i = 0; i < this->terms.size(); ++i)
+        result.terms.push_back(this-> terms[i]);
+    for (int i = 0; i < other.terms.size(); ++i) {
+        bool found = false;
+        for (int j = 0; j < result.terms.size(); ++j) {
+            if (result.terms[j].pow == other.terms[i].pow) {
+                result.terms[j].coef -= other.terms[i].coef;
+                found = true;
+                break;
+            }
+        }
+        if (!found) {
+            result.terms.push_back(other.terms[i]);
+        }
+    }
+    return result;
+}
+
+polynomial polynomial::operator* (polynomial& other) {
+    polynomial result;
+    int len1 = this -> terms.size (), len2 = other.terms.size ();
+    monomial mono;
+    for (int i = 0; i < len1; i++) {
+        for (int j = 0; j < len2; j++) {
+            int p1 = terms[i].pow, p2 = other.terms[j].pow;
+            int c1 = terms[i].coef, c2 = other.terms[j].coef;
+            mono.pow = p1 + p2;
+            mono.coef = c1 * c2;
+            result.terms.push_back (mono);
+        }
+    }
+    return result.sort();
+}
+
+bool operator==(const monomial& m1, const monomial& m2) {
+    return m1.coef == m2.coef && m1.pow == m2.pow;
+}
+
+bool operator!=(const monomial& m1, const monomial&m2) {
+    return m1.coef != m2.coef || m1.pow != m2.pow;
+}
+
+bool operator==(polynomial& p1,polynomial& p2) {
+    p1.sort(); p2.sort();
+    if (p1.terms.size() != p2.terms.size())
+        return false;
+    p1.sort (); p2.sort ();
+    int len = p1.terms.size ();
+    for (int i = 0; i < len; i++)
+    {
+        if (p1.terms[i] != p2.terms[i])
+            return false;
+    }
+    return true;
+}
+
+polynomial polynomial::operator+= (polynomial& other) {
+    for (int i = 0; i < other.terms.size(); ++i) {
+        bool found = false;
+        for (int j = 0; j < this->terms.size(); ++j) {
+            if (this->terms[j].pow == other.terms[i].pow) {
+                this->terms[j].coef += other.terms[i].coef;
+                found = true;
+                break;
+            }
+        }
+        if (!found) {
+            this->terms.push_back(other.terms[i]);
+        }
+    }
+    return *this;
+}
+
+polynomial polynomial::operator-= (polynomial& other) {
+    for (int i = 0; i < other.terms.size(); ++i) {
+        bool found = false;
+        for (int j = 0; j < terms.size(); ++j) {
+            if (terms[j].pow == other.terms[i].pow) {
+                terms[j].coef -= other.terms[i].coef;
+                found = true;
+                break;
+            }
+        }
+        if (!found) {
+            terms.push_back(other.terms[i]);
+        }
+    }
+    return *this;
+}
