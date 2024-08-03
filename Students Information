@@ -1,0 +1,194 @@
+#include <iostream>
+#include <string>
+using namespace std;
+class Student {
+    long int ID;
+    string name;
+    int grade;
+    friend istream& operator >> (istream&, Student&);
+    friend ostream& operator << (ostream&, Student&);
+    string smallToCapital (string&);
+    friend void AZid (Student*, int);
+    friend void AZname (Student*, int);
+    friend void AZgrade (Student*, int);
+    friend void findID (long int, Student*, int);
+    friend void findName (string&, Student*, int);
+};
+
+void menu ();
+void input (int, Student*);
+
+int main () {
+    int count;
+    cout << "Enter the count of students: ";
+    cin >> count;
+    Student* student = new Student [count];
+    input (count, student);
+
+    string Name;
+    int option;
+    menu ();
+    while (true) {
+        cin >> option;
+        if (option == 0) {
+            cout << "Program is terminated successfully\n";
+            break;
+        }
+        switch (option) {
+        case 1:
+            cout << "Students sorted by student ID:\n";
+            AZid (student, count);
+            break;
+
+        case 2:
+            cout << "Students sorted by name:\n";
+            AZname (student, count);
+            break;
+
+        case 3:
+            cout << "Students sorted by grade:\n";
+            AZgrade (student, count);
+            break;
+        case 4:
+            int id;
+            cout << "Enter the ID: ";
+            cin >> id;
+            findID (id, student, count);
+            break;
+        
+        case 5:
+            cout << "Enter the name: ";
+            cin >> Name;
+            findName (Name, student, count);
+            break;
+
+        case 6:
+            menu ();
+            break;
+
+        default:
+            cout << "You must choose an option from 0 to 6\n";
+            break;
+        }
+    }
+    
+    delete [] student;
+    return 0;
+}
+
+void menu () {
+    cout << "Choose an option from the menu\n";
+    cout << "0. Terminating the program.\n";
+    cout << "1. List of students, sorted by student Id.\n";
+    cout << "2. List of students, sorted by name.\n";
+    cout << "3. List of students, sorted by grade.\n";
+    cout << "4. Searching for a student based on student Id.\n";
+    cout << "5. Searching for a student based on name.\n";
+    cout << "6. printing menu again.\n";
+}
+
+istream& operator >> (istream& input, Student& student) {
+    input >> student.ID >> student.name >> student.grade;
+    return input;
+}
+
+ostream& operator << (ostream& output, Student& stu) {
+    output << stu.name << " " << stu.ID << " " << stu.grade;
+    return output;
+}
+
+void input (int count, Student* student) {
+    cout << "Enter the information of each student (student ID, name, and grade)\n";
+    for (int i = 0; i < count; i++) {
+        cout << "Student number " << i + 1 << ": ";
+        cin >> student[i];
+    }
+    cout << "\n";
+}
+
+string Student::smallToCapital (string& str) {
+    int StrLen = str.length ();
+    for (int i = 0; i < StrLen; i++) {
+        if (str [i] >= 97 && str [i] <= 122)
+            str [i] -= 32; 
+    }
+    return str;
+}
+
+void AZid (Student* student, int count) {
+    for (int i = 0; i < count - 1; i++) {
+        for (int j = 0; j < count - i - 1; j++) {
+            if (student[j].ID > student[j+1].ID) {
+                Student temp = student [j];
+                student [j] = student [j+1];
+                student[j+1] = temp;
+            }
+        }
+    }
+    for (int i = 0; i < count; i++) {
+        cout << student[i] << "\n";
+    }
+}
+
+void AZname (Student* student, int count) {
+    for (int i = 0; i < count; i++) {
+        student[i].smallToCapital (student[i].name);
+    }
+    
+    for (int i = 0; i < count - 1; i++) {
+        for (int j = 0; j < count - i - 1; i++) {
+            if (student[j].name > student[j+1].name) {
+                Student temp = student [j];
+                student [j] = student [j+1];
+                student[j+1] = temp;
+            }
+        }
+    }
+    for (int i = 0; i < count; i++) {
+        cout << student[i] << "\n";
+    }
+}
+
+void AZgrade (Student* student, int count) {
+    for (int i = 0; i < count - 1; i++) {
+        for (int j = 0; j < count - i - 1; j++) {
+            if (student[j].grade > student[j+1].grade) {
+                Student temp = student [j];
+                student [j] = student [j+1];
+                student[j+1] = temp;
+            }
+        }
+    }
+    for (int i = 0; i < count; i++) {
+        cout << student[i] << "\n";
+    }
+}
+
+void findID (long int key, Student* student, int count) {
+    int keyIdx = -1;
+    for (int i = 0; i < count; i++) {
+        if (student[i].ID == key) {
+            keyIdx = i;
+            break;
+        }
+    }
+    if (keyIdx == -1)
+        cout << "The ID is not present in the list\n";
+    else
+        cout << student [keyIdx];
+}
+
+void findName (string& name, Student* student, int count) {
+    int nameIdx = -1;
+    for (int i = 0; i < count; i++) {
+        if (student[i].name == name) {
+            nameIdx = i;
+            break;
+        }
+    }
+    if (nameIdx == -1)
+        cout << "The mentioned student is not persent in the list\n";
+    else {
+        cout << student[nameIdx];
+    }
+}
