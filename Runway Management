@@ -1,0 +1,196 @@
+#include <iostream>
+#include <string>
+using namespace std;
+
+class runway {
+    protected:
+    string runwayCode;
+    bool availability;
+    string controllerName;
+    public:
+    runway (string num = "0", bool statue = true, string name = "x") {
+        runwayCode = num; availability = statue; controllerName = name;
+    }
+};
+
+class ControlRunway : public runway {
+    public:
+    friend void setInfo (ControlRunway[], int);
+    void AvailableRunwaysNo (ControlRunway[], int);
+    void AvailableRunwaysCount (ControlRunway[], int);
+    void inUseRunwaysInfo (ControlRunway[], int);
+    void initRunway (ControlRunway[], int, string);
+    void freeUpRunway (ControlRunway[], int, string);
+};
+
+void menu();
+
+int main () {
+    const int count = 3;
+    ControlRunway runways [count];
+    setInfo(runways,count);
+    menu();
+    while (true) {
+        int option;
+        cin >> option;
+        if (option == 0) {
+            cout << "The program is terminated\n";
+            return 0;
+        } else {
+            switch (option)
+            {
+            case 1:
+                runways->AvailableRunwaysCount (runways, count);
+                cout << endl;
+                break;
+            
+            case 2:
+                runways->AvailableRunwaysNo (runways, count);
+                cout << endl;
+                break;
+
+            case 3:
+                runways->inUseRunwaysInfo (runways, count);
+                break;
+
+            case 4:{
+                cout << "Enter the code of runway that you want to initialize: ";
+                string code1;
+                cin >> code1;
+                runways->initRunway (runways, count, code1);
+                cout << endl;
+                break;
+            }
+            case 5:{
+                cout << "Enter the code of runway that you want to free up: ";
+                string code2;
+                cin >> code2;
+                runways->freeUpRunway (runways, count, code2);
+                cout << endl;
+                break;
+            }
+
+            case 6:
+                menu ();
+                break;
+
+            default:
+                cout << "Your selected option needs to be among 0 to 5\n";
+                break;
+            }
+        }
+    }
+    
+    return 0;
+}
+
+void menu () {
+    cout << "Choose an option from the menu\n";
+    cout << "0. Terminate the program\n";
+    cout << "1. Show the count of available runways\n";
+    cout << "2. Show the code of available runways\n";
+    cout << "3. Show the information of in use runways\n";
+    cout << "4. Initialize a runway to an airplane\n";
+    cout << "5. Free up a runway\n";
+    cout << "6. print menu\n";
+}
+
+void setInfo (ControlRunway runways[], int count) {
+    cout << "Set the information of each runway\n(Code of runway, controller's name, statue)\n";
+    for (int i = 0; i < count; i++) {
+        string code, controller, statue;
+        cout << "Runway " <<i + 1 << " : ";
+        cin >> code >> controller >> statue;
+        runways[i].runwayCode = code;
+        runways[i].controllerName = controller;
+        if (statue == "full") {
+            runways[i].availability = false;
+        } else if (statue == "free") {
+            runways[i].availability = true;
+        } else {
+            cout << "Input value for statue needs to be either full or free\n";
+            --i;
+        }
+    }
+    cout << endl;
+}
+
+void ControlRunway::AvailableRunwaysNo (ControlRunway runways[], int count) {
+    cout << "Available runway codes:\n";
+    for (int i = 0; i < count; i++) {
+        if (runways[i].availability)
+            cout << runways[i].runwayCode << "  ";
+    }
+    cout << endl;
+}
+
+void ControlRunway::AvailableRunwaysCount (ControlRunway runways[], int count) {
+    int Count = 0;
+    for (int i = 0; i < count; i++) {
+        if (runways[i].availability)
+            Count++;
+    }
+    cout << "Current available runways = " << Count << endl;
+}
+
+void ControlRunway::inUseRunwaysInfo (ControlRunway runways[], int count) {
+    cout << "Information of in use runways:\n";
+    int flag = -1;
+    for (int i = 0; i < count; i++){
+        if (!runways[i].availability) {
+            cout << "Runway code = " << runways[i].runwayCode << "  ,  ";
+            cout << runways[i].runwayCode <<"'s controller = " << runways[i].controllerName << "\n";
+            cout << "\n";
+        } else {
+            ++flag;
+        }
+    }
+    if (flag == -1)
+        cout << "All runways are in use\n";
+}
+
+void ControlRunway::initRunway (ControlRunway runways[], int count, string code) {
+    int idx = -1;
+    for (int i = 0; i < count; i++) {
+        if (runways[i].runwayCode == code) {
+            idx = i;
+            break;
+        }
+    }
+    if (idx == -1) {
+        cout << code << " didn't match any of the runways in the list\n";
+        return;
+    } else {
+        if (runways[idx].availability) {
+            cout << "Enter the name of controller for runway " << code << ": ";
+            string controller;
+            cin >> controller;
+            runways[idx].availability = false;
+            runways[idx].controllerName = controller;
+            cout << "The runway " << code << " is now under control of " << controller << "\n";
+        } else {
+            cout << "The runway " << code << " is currently in use\n";
+        }
+    }
+}
+
+void ControlRunway::freeUpRunway (ControlRunway runways[], int count, string code) {
+    int idx = -1;
+    for (int i = 0; i < count; i++) {
+        if (runways[i].runwayCode == code) {
+            idx = i;
+            break;
+        }
+    }
+    if (idx == -1) {
+        cout << code << " didn't match any of the runways in the list\n";
+        return;
+    } else {
+        if (!runways[idx].availability) {
+            runways[idx].availability = true;
+            cout << "The runway" << code << " is now freed up\n";
+        } else {
+            cout << "The runway" << code << " has been free\n";
+        }
+    }
+}
