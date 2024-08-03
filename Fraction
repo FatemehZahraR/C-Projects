@@ -1,0 +1,152 @@
+#include <iostream>
+using namespace std;
+
+class fraction {
+    int den, num;
+    public:
+    friend istream& operator>> (istream&, fraction&);
+    friend ostream& operator<< (ostream&, const fraction&);
+    friend void fractionValidation (const fraction&);
+    friend fraction simplifyingFraction (fraction&);
+    friend fraction operator+ (fraction&, fraction&);
+    friend fraction operator- (fraction&, fraction&);
+    friend fraction operator* (fraction&, fraction&);
+    friend fraction operator/ (fraction&, fraction&);
+    double fractionToDecimal ();
+    fraction operator= (const fraction&);
+    bool operator == (const fraction&);
+};
+
+int GCDcalculator (int, int);
+int absoluteValue (int);
+
+int main () {
+    int idx = 0;
+    fraction f1, f2, f3;
+    while (idx < 2) {
+        try {
+            cout << "Enter fraction number " << ++idx << " : ";
+            if (idx == 1) {
+                cin >> f1;
+                fractionValidation (f1);
+            }
+            else {
+                cin >> f2;
+                fractionValidation (f2);
+            }
+        } catch (const string& exc) {
+            cerr << exc;
+            idx--;
+        } catch (...) {
+            cerr << "Something is wrong with the input\n";
+            idx--;
+        }
+    }
+    f3 = f1 + f2;
+    cout << "\nThe fractional numbers: " << "f1 = " << f1 << "    f2 = " << f2 << "\n";
+    cout << "f1 + f2 = " << f1 + f2 << "\n";
+    cout << "f1 - f2 = " << f1 - f2 << "\n";
+    cout << "f1 * f2 = " << f1 * f2 << "\n";
+    cout << "f1 / f2 = " << f1 / f2 << "\n";
+    if (f1 == f2)
+        cout << "Fractional numbers are equal";
+    else
+        cout << "Fractional numbers are not equal";
+    return 0;
+}
+
+istream& operator>> (istream& input, fraction& fraction) {
+    input >> fraction.num >> fraction.den;
+    return input;
+}
+
+ostream& operator<< (ostream& output, const fraction& fraction) {
+    output << fraction.num << " / " << fraction.den;
+    return output;
+}
+
+void fractionValidation (const fraction& fraction) {
+    string str1 ("Numerator of the fraction must be positive\n");
+    if (fraction.num < 0)
+        throw str1;
+    string str2 ("Deviding by 0 is undefined");
+    if (fraction.den == 0)
+        throw str2;
+}
+
+int GCDcalculator (int a, int b) {
+    if (b == 0)
+        return a;
+    return GCDcalculator (b, a%b);
+}
+
+int absoluteValue (int x) {
+    if (x < 0)
+        x = -x;
+    return x;
+}
+
+fraction simplifyingFraction (fraction& frac) {
+    int num = absoluteValue (frac.num), den = absoluteValue (frac.den);
+    int GCD = (num > den ? GCDcalculator(num, den) : GCDcalculator(den, num));
+    frac.num /= GCD;
+    frac.den /= GCD;
+    return frac;
+}
+
+fraction operator+ (fraction& f1, fraction& f2) {
+    fraction sum;
+    sum.num = f1.num * f2.den + f1.den * f2.num;
+    sum.den = f1.den * f2.den;
+    int num = absoluteValue (sum.num), den = absoluteValue (sum.den);
+    int GCD = (num > den ? GCDcalculator(num, den) : GCDcalculator(den, num));
+    sum.num /= GCD;
+    sum.den /= GCD;
+    return sum;
+}
+
+fraction operator- (fraction& f1, fraction& f2) {
+    fraction diff;
+    diff.num = f1.num * f2.den - f1.den * f2.num;
+    diff.den = f1.den * f2.den;
+    int num = absoluteValue (diff.num), den = absoluteValue (diff.den);
+    int GCD = (num > den ? GCDcalculator(num, den) : GCDcalculator(den, num));
+    diff.num /= GCD;
+    diff.den /= GCD;
+    return diff;
+}
+
+fraction operator* (fraction& f1, fraction& f2) {
+    fraction product;
+    product.num = f1.num * f2.num;
+    product.den = f1.den * f2.den;
+    int num = absoluteValue (product.num), den = absoluteValue (product.den);
+    int GCD = (num > den ? GCDcalculator(num, den) : GCDcalculator(den, num));
+    product.num /= GCD;
+    product.den /= GCD;
+    return product;
+}
+fraction operator/ (fraction& f1, fraction& f2) {
+    fraction quotient;
+    quotient.num = f1.num * f2.den;
+    quotient.den = f1.den * f2.num;
+    int num = absoluteValue (quotient.num), den = absoluteValue (quotient.den);
+    int GCD = (num > den ? GCDcalculator(num, den) : GCDcalculator(den, num));
+    quotient.num /= GCD;
+    quotient.den /= GCD;
+    return quotient;
+}
+
+double fraction::fractionToDecimal () {
+    return ((double) num/den);
+}
+
+fraction fraction::operator= (const fraction& other) {
+    num = other.num;
+    den = other.den;
+    return *this;
+}
+
+bool fraction::operator== (const fraction& other) {
+    return (num == other.num && den == other.den);
+}
