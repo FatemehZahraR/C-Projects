@@ -1,0 +1,163 @@
+#include <iostream>
+#include <string>
+#include <vector>
+using namespace std;
+
+class SavingAccounts {
+    string IDNumber;
+    string name;
+    double balance;
+    static float rate;
+    static int memberAccounts;
+    public:
+    SavingAccounts (string&, string&, double&);
+    ~SavingAccounts ();
+    string getID ();
+    string getName ();
+    double getBalance ();
+    void setRate (double&);
+    double calcInterest ();
+    void deposit (double&);
+    bool withdraw (double&);
+    int totalAccounts ();
+};
+
+float SavingAccounts::rate = 0;
+int SavingAccounts::memberAccounts = 0;
+void menu ();
+
+int main () {
+    cout << "Enter your id, name, and the current balance: ";
+    string id, name;
+    double balance, amount;
+    cin >> id >> name >> balance;
+    SavingAccounts account1 (id, name, balance);
+    cout << "Your account is successfully created!\nBank's current rate is 0.4%\n";
+    double rate = 0.4;
+    account1.setRate (rate);
+    menu ();
+    int option;
+    while (true) {
+        cout << "Choose an option from the menu\n";
+        cin >> option;
+        if (option == 0)
+            break;
+        switch (option) {
+        case 1:
+            cout << "Account ID: " << account1.getID ();
+            cout << "\n";
+            break;
+
+        case 2:
+            cout << "Account's name: " << account1.getName ();
+            cout << "\n";
+            break;
+
+        case 3:
+            cout << "Accout's current balance: " << account1.getBalance ();
+            cout << "\n";
+            break;
+        
+        case 4:
+            cout << "Account's income interest: " << account1.calcInterest ();
+            cout << "\n";
+            break;
+
+        case 5:
+            cout << "Add a deposit to account: ";
+            cin >> amount;
+            account1.deposit (amount);
+            cout << "\nCurrent balance: " << account1.getBalance ();
+            cout << "\n";
+            break;
+
+        case 6:
+            cout << "Enter an amount to withdraw money from the account: ";
+            cin >> amount;
+            if (account1.withdraw (amount)) {
+                cout << "The withdrawal operation successfully completed!\n";
+                cout << "Current balance: " << account1.getBalance ();
+                cout << "\n";
+            }
+            else {
+                cout << "Balance was not enough to complete withdrawal\n";
+            }
+            break;
+
+        case 7:
+            menu ();
+            break;
+        
+        default:
+            cout << "The chosen number must be in range of 0 to 7, try again\n";
+            break;
+        }
+        cout << "\n";
+    }
+    return 0;
+}
+
+void menu () {
+    cout << "0. Terminate the program\n";
+    cout << "1. Get account's ID\n";
+    cout << "2. Get account's name\n";
+    cout << "3. Get current Balance\n";
+    cout << "4. Get income interest, based on current balance and rate\n";
+    cout << "5. Add a depositeto account\n";
+    cout << "6. Withdraw money from account\n";
+    cout << "7. Print menu again\n";
+}
+
+SavingAccounts::SavingAccounts (string& ID, string& Name, double& Balance) {
+    IDNumber = ID;
+    name = Name;
+    balance = Balance;
+    memberAccounts++;
+}
+
+SavingAccounts::~SavingAccounts () {
+    cout << "Name: " << name << "\n";
+    cout << "Account ID: " << IDNumber << "\n";
+    memberAccounts--;
+    cout << "Remaining accounts: " << memberAccounts <<"\n";
+}
+
+string SavingAccounts::getID () {
+    return IDNumber;
+}
+
+string SavingAccounts::getName () {
+    return name;
+}
+
+double SavingAccounts::getBalance () {
+    return balance;
+}
+
+double SavingAccounts::calcInterest () {
+    double interest = rate * balance;
+    balance += interest;
+    return interest;
+}
+
+void SavingAccounts::deposit (double& amount) {
+    balance += amount;
+}
+
+bool SavingAccounts::withdraw (double& amount) {
+    if (balance >= amount) {
+        balance -= amount;
+        return true;
+    }
+    else {
+        return false;
+    }
+}
+
+int SavingAccounts::totalAccounts () {
+    return memberAccounts;
+}
+
+void SavingAccounts::setRate (double& rate) {
+    this -> rate = rate;
+}
